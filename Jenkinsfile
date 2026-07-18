@@ -13,6 +13,11 @@ pipeline {
       choices: ['ap-south-1'],
       description: 'AWS region for ECR'
     )
+    string(
+      name: 'SNS_TOPIC_ARN',
+      defaultValue: 'arn:aws:sns:ap-south-1:175200623108:streamingapp-alerts',
+      description: 'SNS topic for CI/CD notifications'
+    )
   }
 
   stages {
@@ -20,6 +25,7 @@ pipeline {
       steps {
         script {
           env.AWS_REGION = params.AWS_REGION
+          env.SNS_TOPIC_ARN = params.SNS_TOPIC_ARN
 
           env.AWS_ACCOUNT_ID = sh(
             script: 'aws sts get-caller-identity --query Account --output text',
@@ -112,10 +118,24 @@ pipeline {
 
   post {
     success {
+      sh '''
+        aws sns publish \
+          --region "$AWS_REGION" \
+          --topic-arn "$SNS_TOPIC_ARN" \
+          --subject "StreamingApp CI succeeded" \
+          --message "Jenkins build $BUILD_NUMBER successfully built and pushed all StreamingApp images with tag $IMAGE_TAG."
+      '''
       echo "Successfully pushed all images with tag: ${env.IMAGE_TAG}"
     }
 
     failure {
+      sh '''
+        aws sns publish \
+          --region "$AWS_REGION" \
+          --topic-arn "$SNS_TOPIC_ARN" \
+          --subject "StreamingApp CI failed" \
+          --message "Jenkins build $BUILD_NUMBER failed. Review the Jenkins console output."
+      '''
       echo "Pipeline failed. Check the failed stage console output."
     }
   }
