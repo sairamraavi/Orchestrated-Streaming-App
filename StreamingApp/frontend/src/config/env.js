@@ -1,6 +1,6 @@
 const getEnv = (key, fallback) => {
   const value = process.env[key];
-  return value === undefined || value === '' ? fallback : value;
+  return value === undefined ? fallback : value;
 };
 
 export const AUTH_API_URL = getEnv('REACT_APP_AUTH_API_URL', 'http://localhost:3001/api');

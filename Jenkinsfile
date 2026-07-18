@@ -66,6 +66,12 @@ pipeline {
       steps {
         sh '''
           docker build --platform linux/amd64 \
+            --build-arg REACT_APP_AUTH_API_URL=/api \
+            --build-arg REACT_APP_STREAMING_API_URL=/api \
+            --build-arg REACT_APP_STREAMING_PUBLIC_URL= \
+            --build-arg REACT_APP_ADMIN_API_URL=/api/admin \
+            --build-arg REACT_APP_CHAT_API_URL=/api/chat \
+            --build-arg REACT_APP_CHAT_SOCKET_URL= \
             -t "$ECR_REGISTRY/streaming-frontend:$IMAGE_TAG" \
             ./StreamingApp/frontend
 
