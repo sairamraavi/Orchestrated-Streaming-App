@@ -1,0 +1,74 @@
+image:
+  registry: 175200623108.dkr.ecr.ap-south-1.amazonaws.com
+  tag: jenkins-3
+  pullPolicy: IfNotPresent
+
+frontend:
+  repository: streaming-frontend
+  replicas: 1
+  port: 80
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+
+backend:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 300m
+      memory: 256Mi
+
+services:
+  auth:
+    repository: streaming-auth
+    port: 3001
+    healthPath: /health
+  streaming:
+    repository: streaming-streaming
+    port: 3002
+    healthPath: /api/health
+  admin:
+    repository: streaming-admin
+    port: 3003
+    healthPath: /api/health
+  chat:
+    repository: streaming-chat
+    port: 3004
+    healthPath: /api/health
+
+mongodb:
+  image: mongo:6
+  port: 27017
+  storageSize: 1Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 300m
+      memory: 512Mi
+
+app:
+  mongoUri: mongodb://mongodb:27017/streamingapp
+  secretName: streamingapp-secrets
+  clientUrls: http://a8aaf839ed39d4f16b917d583fc1654d-673853213.ap-south-1.elb.amazonaws.com
+  streamingPublicUrl: http://a8aaf839ed39d4f16b917d583fc1654d-673853213.ap-south-1.elb.amazonaws.com
+  awsRegion: ap-south-1
+  s3Bucket: streamingapp-175200623108-ap-south-1
+
+ingress:
+  enabled: true
+  className: nginx
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 70

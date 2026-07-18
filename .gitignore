@@ -1,0 +1,12 @@
+# Secrets and local environment configuration
+StreamingApp/.env
+StreamingApp/**/.env
+StreamingApp/**/.env.*
+!StreamingApp/**/.env.example
+
+# Dependencies and local OS files
+StreamingApp/**/node_modules/
+.DS_Store
+
+# Empty local lockfile accidentally generated at backend root
+StreamingApp/backend/package-lock.json
